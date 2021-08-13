@@ -1,0 +1,8 @@
+---
+- hosts: all
+
+- hosts: webservers
+  roles:
+  - geerlingguy.pip
+  - geerlingguy.docker
+  - webservers

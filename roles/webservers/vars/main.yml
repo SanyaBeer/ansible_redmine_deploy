@@ -1,0 +1,10 @@
+---
+redmine_image_version: "latest"
+
+postgresql_user: "{{ db_user }}"
+postgresql_password: "{{ db_password }}"
+postgresql_port: "{{ db_port }}"
+postgresql_host: "{{ db_host }}"
+postgresql_database: "{{ db_database_name }}"
+
+#DO_token: ""

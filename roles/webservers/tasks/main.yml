@@ -1,0 +1,71 @@
+---
+#- name: Get droplet information
+#  community.digitalocean.digital_ocean_droplet_info:
+#    oauth_token: "{{ DO_token }}"
+#  register: droplets
+#
+#- name: Get number of droplets
+#  debug:
+#    msg: "Droplets count: {{ droplets.data | length }}"
+
+- name: Install PIP
+  apt:
+    package: python3-pip
+    state: present
+
+- name: Install PY-libs
+  command: pip install psycopg2-binary
+
+- name: Check PostgreSQL availability
+  postgresql_ping:
+    db: "{{ postgresql_database }}"
+    login_host: "{{ postgresql_host }}"
+    login_user: "{{ postgresql_user }}"
+    login_password: "{{ postgresql_password }}"
+    port: "{{ postgresql_port }}"
+#    ca_cert: /root/ca-certificate.crt
+#    ssl_mode: prefer
+  register: is_db_available
+
+- name: DB is unavailable
+  fail:
+    msg: is_db_available
+  when: is_db_available.is_available == false
+
+- name: Docker up redmine
+  docker_container:
+    name: redmine
+    image: redmine:{{redmine_image_version}} #latest
+    state: started
+    container_default_behavior: no_defaults
+    auto_remove: no
+    detach: yes
+    init: no
+    interactive: no
+    memory: "0"
+    paused: no
+    privileged: no
+    read_only: no
+    tty: no
+    recreate: true
+    volumes:
+      - /data
+    ports:
+      - "80:3000"
+    env:
+      REDMINE_DB_POSTGRES: "{{ postgresql_host }}"
+      REDMINE_DB_PORT: "{{ postgresql_port }}"
+      REDMINE_DB_USERNAME: "{{ postgresql_user }}"
+      REDMINE_DB_PASSWORD: "{{ postgresql_password }}"
+      REDMINE_DB_DATABASE: "{{ postgresql_database }}"
+      REDMINE_PLUGINS_MIGRATE: "true"
+
+- name: Check HTTP status 200
+  uri:
+    url: "http://{{ inventory_hostname }}/"
+    method: GET
+    status_code: [200]
+  register: result
+  until: result.status == 200
+  retries: 30
+  delay: 1

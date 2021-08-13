@@ -6,3 +6,6 @@
   - geerlingguy.pip
   - geerlingguy.docker
   - webservers
+#  vars:
+#    pip_install_packages:
+#      - name: docker

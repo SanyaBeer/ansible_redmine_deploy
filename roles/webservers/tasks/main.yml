@@ -12,6 +12,7 @@
   apt:
     package: python3-pip
     state: present
+    update_cache: true
 
 - name: Install PY-libs
   command: pip install psycopg2-binary docker

@@ -16,5 +16,7 @@ resource "digitalocean_loadbalancer" "redmine-lb" {
     path = "/"
   }
 
+  depends_on = [digitalocean_droplet.redmine-web]
+
   droplet_tag = "redmine-web"
 }

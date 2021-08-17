@@ -1,11 +1,12 @@
 ---
 - hosts: all
 
+- hosts: localhost
+  roles:
+    - terraform
+
 - hosts: webservers
   roles:
-  - geerlingguy.pip
-  - geerlingguy.docker
-  - webservers
-#  vars:
-#    pip_install_packages:
-#      - name: docker
+    - geerlingguy.pip
+    - geerlingguy.docker
+    - webservers

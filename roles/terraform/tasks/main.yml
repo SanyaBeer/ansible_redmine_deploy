@@ -1,0 +1,55 @@
+---
+- name: Deploy DO infrastructure
+  terraform:
+    project_path: terraform/loadbalance/
+    state: present
+    variables:
+      do_token: "{{ do_token | string }}"
+      pvt_key: "{{ pvt_key }}"
+      pub_key: "{{ pub_key }}"
+
+- name: Get terraform output droplets_ips
+  shell:
+    cmd: terraform output --json droplets_ips
+    chdir: terraform/loadbalance
+  register: droplets_cmd
+
+- name: Get terraform output db_settings
+  shell:
+    cmd: terraform output --json db_settings
+    chdir: terraform/loadbalance
+  register: settings_cmd
+
+#- name: Add webserver hosts
+#  add_host:
+#    host: "{{ item }}"
+#    groupname: webservers
+#    db_host: db_host
+#    db_port: db_port
+#    db_database_name: db_database_name
+#    db_user: db_user
+#    db_password: db_password
+#  with_items: "{{ droplets_cmd.stdout | from_json }}"
+
+- name: Write to inventory file
+  lineinfile:
+    path: hosts
+    regexp: "{{ item }}"
+    line: "{{ item }}"
+    insertafter: "[webservers]"
+  with_items: "{{ droplets_cmd.stdout | from_json }}"
+
+- name: Refresh inventory
+  meta: refresh_inventory
+
+- name: Create DB variables
+  set_fact:
+    db_host:          "{{ (settings_cmd.stdout | from_json).host }}"
+    db_port:          "{{ (settings_cmd.stdout | from_json).port }}"
+    db_database_name: "{{ (settings_cmd.stdout | from_json).db_name }}"
+    db_user:          "{{ (settings_cmd.stdout | from_json).user }}"
+    db_password:      "{{ (settings_cmd.stdout | from_json).password }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  with_items: "{{ droplets_cmd.stdout | from_json }}"
+  run_once: yes

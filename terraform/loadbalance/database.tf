@@ -25,3 +25,14 @@ resource "digitalocean_database_firewall" "redmine-fw" {
     value = "redmine-web"
   }
 }
+
+output "db_settings" {
+  sensitive = true
+  value = {
+    "host": digitalocean_database_cluster.db-postgres-cluster.private_host
+    "port": digitalocean_database_cluster.db-postgres-cluster.port
+    "user": digitalocean_database_user.redmine.name
+    "password": digitalocean_database_user.redmine.password
+    "db_name": digitalocean_database_db.redmine.name
+  }
+}

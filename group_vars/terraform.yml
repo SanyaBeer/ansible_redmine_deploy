@@ -1,0 +1,3 @@
+---
+tf_pvt_key: "{{ lookup('file', /home/aliaksandr/.ssh/id_rsa) }}"
+tf_pub_key: "{{ lookup('file', /home/aliaksandr/.ssh/id_rsa.pub) }}"

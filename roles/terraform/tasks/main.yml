@@ -3,6 +3,11 @@
   terraform:
     project_path: terraform/loadbalance/
     state: present
+    backend_config:
+      hostname: app.terraform.io
+      organization: aj_pivovarov
+      workspaces:
+        name: do_redmine
     variables:
       do_token: "{{ do_token | string }}"
       pvt_key: "{{ pvt_key }}"

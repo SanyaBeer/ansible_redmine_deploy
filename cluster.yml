@@ -10,3 +10,4 @@
     - geerlingguy.pip
     - geerlingguy.docker
     - webservers
+    - { role: datadog.datadog, become: yes }

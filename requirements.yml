@@ -1,6 +1,7 @@
 ---
 collections:
   - name:
+    community.crypto
     community.docker
     community.postgresql
     geerlingguy.docker

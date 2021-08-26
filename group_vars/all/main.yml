@@ -1,0 +1,28 @@
+---
+do_token: ""
+
+ssh_key_name:   "{{ lookup('env', 'USER') }}@{{ lookup('env', 'HOSTNAME') }}"
+pvt_key:        "{{ playbook_dir }}/.ssh/do_id_rsa"
+pub_key:        "{{ playbook_dir }}/.ssh/do_id_rsa.pub"
+
+app_tag: "redmine-cluster"
+app_region: "fra1"
+
+droplet_image:  "ubuntu-20-04-x64"
+droplet_prefix: "redmine-web-"
+droplet_count:  1
+droplet_tag:    "redmine-web"
+droplet_region: "{{ app_region }}"
+droplet_size:   "s-1vcpu-1gb"
+
+droplet_connection_user: "root"
+
+db_cluster_name:        "db-postgres-cluster"
+db_cluster_engine:      "pg"
+db_cluster_version:     "13"
+db_cluster_size:        "db-s-1vcpu-1gb"
+db_cluster_region:      "{{ app_region }}"
+db_cluster_node_count:  1
+
+db_name: "redmine"
+db_user: "redmine"

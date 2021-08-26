@@ -1,13 +1,4 @@
 ---
-#- name: Get droplet information
-#  community.digitalocean.digital_ocean_droplet_info:
-#    oauth_token: "{{ DO_token }}"
-#  register: droplets
-#
-#- name: Get number of droplets
-#  debug:
-#    msg: "Droplets count: {{ droplets.data | length }}"
-
 - name: Install PIP
   apt:
     package: python3-pip
@@ -24,8 +15,6 @@
     login_user: "{{ postgresql_user }}"
     login_password: "{{ postgresql_password }}"
     port: "{{ postgresql_port }}"
-#    ca_cert: /root/ca-certificate.crt
-#    ssl_mode: prefer
   register: is_db_available
 
 - name: DB is unavailable

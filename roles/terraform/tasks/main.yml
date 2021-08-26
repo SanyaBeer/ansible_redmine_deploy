@@ -1,17 +1,52 @@
 ---
-- name: Deploy DO infrastructure
-  terraform:
-    project_path: terraform/loadbalance/
+- name: Create .ssh directory if it does not exist
+  file:
+    path: "./.ssh"
+    state: directory
+    mode: '0755'
+
+- name: Generate an OpenSSH keypair
+  community.crypto.openssh_keypair:
+    path: "./.ssh/do_id_rsa"
     state: present
+    force: no
+  register: newSSHKeys
+
+- debug:
+    msg: "{{ do_token }}"
+
+- name: Deploy DO infrastructure
+  community.general.terraform:
+    project_path: terraform/loadbalance/
+    state: absent
     backend_config:
       hostname: app.terraform.io
       organization: aj_pivovarov
       workspaces:
         name: do_redmine
     variables:
-      do_token: "{{ do_token | string }}"
+      do_token: "{{ do_token }}"
+      ssh_key_name: "{{ ssh_key_name }}"
       pvt_key: "{{ pvt_key }}"
       pub_key: "{{ pub_key }}"
+      app_tag: "{{ app_tag }}"
+      app_region: "{{ app_region }}"
+      droplet_image: "{{ droplet_image }}"
+      droplet_prefix: "{{ droplet_prefix }}"
+      droplet_count: "{{ droplet_count }}"
+      droplet_tag: "{{ droplet_tag }}"
+      droplet_region: "{{ droplet_region }}"
+      droplet_size: "{{ droplet_size }}"
+      droplet_connection_user: "{{ droplet_connection_user }}"
+      db_cluster_name: "{{ db_cluster_name }}"
+      db_cluster_engine: "{{ db_cluster_engine }}"
+      db_cluster_version: "{{ db_cluster_version }}"
+      db_cluster_size: "{{ db_cluster_size }}"
+      db_cluster_region: "{{ db_cluster_region }}"
+      db_cluster_node_count: "{{ db_cluster_node_count }}"
+      db_name: "{{ db_name }}"
+      db_user: "{{ db_user }}"
+  register: do_stats
 
 - name: Get terraform output droplets_ips
   shell:
@@ -24,17 +59,6 @@
     cmd: terraform output --json db_settings
     chdir: terraform/loadbalance
   register: settings_cmd
-
-#- name: Add webserver hosts
-#  add_host:
-#    host: "{{ item }}"
-#    groupname: webservers
-#    db_host: db_host
-#    db_port: db_port
-#    db_database_name: db_database_name
-#    db_user: db_user
-#    db_password: db_password
-#  with_items: "{{ droplets_cmd.stdout | from_json }}"
 
 - name: Write to inventory file
   lineinfile:
